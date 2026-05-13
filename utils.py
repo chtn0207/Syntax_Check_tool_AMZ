@@ -1,4 +1,3 @@
-```python
 import re
 import inflect
 from syntax_rules import SYNTAX_PATTERNS
@@ -10,9 +9,9 @@ p = inflect.engine()
 # =====================================
 
 RESERVED_KEYWORDS = {
-    'and',
-    'or',
-    'not'
+    "and",
+    "or",
+    "not"
 }
 
 # =====================================
@@ -51,11 +50,10 @@ def remove_not_blocks(text):
 
 def remove_range_functions(text):
 
-    # removes :1: :100: :55:
     return re.sub(r':\d+:', ':', text)
 
 # =====================================
-# CLEAN ATTRIBUTE PREFIX
+# EXTRACT SEARCHABLE CONTENT
 # =====================================
 
 def extract_searchable_content(text):
@@ -71,7 +69,6 @@ def extract_searchable_content(text):
         # Handle AttributesContain logic
         if 'AttributesContain[' in line:
 
-            # ONLY consider text after first :
             if ':' in line:
                 line = line.split(':', 1)[1]
             else:
@@ -130,7 +127,6 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
             w = normalize_word(w)
 
-            # Ignore AND / OR / NOT
             if w in RESERVED_KEYWORDS:
                 continue
 
@@ -146,8 +142,6 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
                         'keyword': inc_word,
                         'matched_text': line.strip()
                     })
-
-    # Remove duplicate duplicate entries
 
     unique = []
     seen = set()
@@ -281,4 +275,3 @@ def highlight_text(text, duplicates):
     highlighted = highlighted.replace('\n', '<br>')
 
     return highlighted
-```
