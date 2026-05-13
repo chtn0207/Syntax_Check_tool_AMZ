@@ -1,0 +1,21 @@
+.highlight-box {
+    background-color: #111827;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+
+.duplicate {
+    background-color: red;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+textarea {
+    font-family: monospace !important;
+}
