@@ -1,12 +1,12 @@
+```python
 import re
 import inflect
 from syntax_rules import SYNTAX_PATTERNS
 
 p = inflect.engine()
 
-
 # =====================================
-# RESERVED KEYWORDS
+# RESERVED WORDS
 # =====================================
 
 RESERVED_KEYWORDS = {
@@ -14,7 +14,6 @@ RESERVED_KEYWORDS = {
     'or',
     'not'
 }
-
 
 # =====================================
 # NORMALIZATION
@@ -31,7 +30,6 @@ def normalize_word(word):
 
     return word
 
-
 # =====================================
 # REMOVE NOT BLOCKS
 # =====================================
@@ -47,7 +45,6 @@ def remove_not_blocks(text):
         flags=re.DOTALL | re.IGNORECASE
     )
 
-
 # =====================================
 # REMOVE RANGE FUNCTIONS
 # =====================================
@@ -55,12 +52,10 @@ def remove_not_blocks(text):
 def remove_range_functions(text):
 
     # removes :1: :100: :55:
-
     return re.sub(r':\d+:', ':', text)
 
-
 # =====================================
-# EXTRACT SEARCHABLE CONTENT
+# CLEAN ATTRIBUTE PREFIX
 # =====================================
 
 def extract_searchable_content(text):
@@ -71,19 +66,20 @@ def extract_searchable_content(text):
 
     for line in lines:
 
-        # remove range functions
         line = remove_range_functions(line)
 
-        # If AttributeContains exists
-        if ':' in line:
+        # Handle AttributesContain logic
+        if 'AttributesContain[' in line:
 
-            # ONLY take text after colon
-            line = line.split(':', 1)[1]
+            # ONLY consider text after first :
+            if ':' in line:
+                line = line.split(':', 1)[1]
+            else:
+                continue
 
         searchable_lines.append(line)
 
     return '\n'.join(searchable_lines)
-
 
 # =====================================
 # EXTRACT KEYWORDS
@@ -108,22 +104,8 @@ def extract_keywords(text):
 
     return set(normalized)
 
-
 # =====================================
-# STRICT WORD MATCH
-# =====================================
-
-def word_exists(keyword, text):
-
-    keyword = normalize_word(keyword)
-
-    pattern = rf'\b{re.escape(keyword)}(s|es)?\b'
-
-    return re.search(pattern, text, re.IGNORECASE)
-
-
-# =====================================
-# DUPLICATE KEYWORD FINDER
+# DUPLICATE DETECTION
 # =====================================
 
 def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
@@ -148,35 +130,26 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
             w = normalize_word(w)
 
-            if w not in RESERVED_KEYWORDS:
-                normalized_line_words.append(w)
+            # Ignore AND / OR / NOT
+            if w in RESERVED_KEYWORDS:
+                continue
+
+            normalized_line_words.append(w)
 
         for inc_word in inclusion_words:
 
-            if exact_match:
+            for w in normalized_line_words:
 
-                if inc_word in normalized_line_words:
+                if inc_word == w:
 
                     duplicates.append({
                         'keyword': inc_word,
                         'matched_text': line.strip()
                     })
 
-            else:
-
-                for w in normalized_line_words:
-
-                    if inc_word == w:
-
-                        duplicates.append({
-                            'keyword': inc_word,
-                            'matched_text': line.strip()
-                        })
-
-    # remove duplicates
+    # Remove duplicate duplicate entries
 
     unique = []
-
     seen = set()
 
     for d in duplicates:
@@ -184,13 +157,10 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
         key = (d['keyword'], d['matched_text'])
 
         if key not in seen:
-
             unique.append(d)
-
             seen.add(key)
 
     return unique
-
 
 # =====================================
 # BRACE VALIDATION
@@ -243,7 +213,6 @@ def validate_braces(text):
 
     return errors
 
-
 # =====================================
 # SYNTAX ERROR DETECTION
 # =====================================
@@ -288,7 +257,6 @@ def detect_syntax_errors(inclusion, exclusion):
 
     return errors
 
-
 # =====================================
 # HIGHLIGHT DUPLICATES
 # =====================================
@@ -313,3 +281,4 @@ def highlight_text(text, duplicates):
     highlighted = highlighted.replace('\n', '<br>')
 
     return highlighted
+```
