@@ -117,7 +117,7 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
     lines = exclusion_clean.splitlines()
 
-    for line in lines:
+    for line_number, line in enumerate(lines, start=1):
 
         words = re.findall(r'\b[a-zA-Z]+\b', line)
 
@@ -140,15 +140,17 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
                     duplicates.append({
                         'keyword': inc_word,
-                        'matched_text': line.strip()
+                        'line_number': line_number
                     })
+
+    # Remove duplicate duplicate entries
 
     unique = []
     seen = set()
 
     for d in duplicates:
 
-        key = (d['keyword'], d['matched_text'])
+        key = (d['keyword'], d['line_number'])
 
         if key not in seen:
             unique.append(d)
