@@ -109,15 +109,53 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
     duplicates = []
 
-    exclusion_clean = remove_not_blocks(exclusion)
-
-    exclusion_clean = extract_searchable_content(exclusion_clean)
-
     inclusion_words = extract_keywords(inclusion)
 
-    lines = exclusion_clean.splitlines()
+    # Use ORIGINAL exclusion lines
+    original_lines = exclusion.splitlines()
 
-    for line_number, line in enumerate(lines, start=1):
+    inside_not_block = False
+
+    for line_number, original_line in enumerate(original_lines, start=1):
+
+        line = original_line
+
+        # ---------------------------------
+        # TRACK NOT BLOCKS
+        # ---------------------------------
+
+        upper_line = line.upper()
+
+        if '{NOT' in upper_line:
+            inside_not_block = True
+
+        if inside_not_block:
+
+            if '}' in line:
+                inside_not_block = False
+
+            continue
+
+        # ---------------------------------
+        # REMOVE RANGE FUNCTIONS
+        # ---------------------------------
+
+        line = remove_range_functions(line)
+
+        # ---------------------------------
+        # HANDLE ATTRIBUTECONTAINS
+        # ---------------------------------
+
+        if 'AttributesContain[' in line:
+
+            if ':' in line:
+                line = line.split(':', 1)[1]
+            else:
+                continue
+
+        # ---------------------------------
+        # EXTRACT WORDS
+        # ---------------------------------
 
         words = re.findall(r'\b[a-zA-Z]+\b', line)
 
@@ -127,10 +165,15 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
 
             w = normalize_word(w)
 
+            # Ignore reserved words
             if w in RESERVED_KEYWORDS:
                 continue
 
             normalized_line_words.append(w)
+
+        # ---------------------------------
+        # COMPARE DUPLICATES
+        # ---------------------------------
 
         for inc_word in inclusion_words:
 
@@ -143,7 +186,9 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
                         'line_number': line_number
                     })
 
-    # Remove duplicate duplicate entries
+    # ---------------------------------
+    # REMOVE DUPLICATE ENTRIES
+    # ---------------------------------
 
     unique = []
     seen = set()
@@ -153,7 +198,9 @@ def find_duplicate_keywords(inclusion, exclusion, exact_match=False):
         key = (d['keyword'], d['line_number'])
 
         if key not in seen:
+
             unique.append(d)
+
             seen.add(key)
 
     return unique
