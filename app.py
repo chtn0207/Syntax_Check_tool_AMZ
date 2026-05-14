@@ -44,20 +44,20 @@ col1, col2 = st.columns(2)
 with col1:
 
     inclusion_text = st.text_area(
-    "Keywords to Include",
-    height=500,
-    placeholder="Paste inclusion syntax here...",
-    label_visibility="visible"
-)
+        "Keywords to Include",
+        height=500,
+        placeholder="Paste inclusion syntax here...",
+        label_visibility="visible"
+    )
 
 with col2:
 
-exclusion_text = st.text_area(
-    "Keywords to Exclude",
-    height=500,
-    placeholder="Paste exclusion syntax here...",
-    label_visibility="visible"
-)
+    exclusion_text = st.text_area(
+        "Keywords to Exclude",
+        height=500,
+        placeholder="Paste exclusion syntax here...",
+        label_visibility="visible"
+    )
 
 # =====================================
 # OPTIONS
