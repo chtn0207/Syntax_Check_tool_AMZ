@@ -17,5 +17,9 @@
 }
 
 textarea {
+    white-space: pre !important;
+    overflow-x: scroll !important;
+    overflow-y: scroll !important;
     font-family: monospace !important;
+    word-wrap: normal !important;
 }
